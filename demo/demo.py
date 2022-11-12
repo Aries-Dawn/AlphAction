@@ -149,6 +149,15 @@ def main():
             with torch.no_grad():
                 (orig_img, boxes, scores, ids) = ava_predictor_worker.read_track()
 
+                # if boxes is None:
+                #     print("=========================")
+                #     print(orig_img)
+                #     print("-----------------")
+                #     print(scores)
+                #     print("-----------------")
+                #     print(ids)
+                #     print("=========================")
+
                 if orig_img is None:
                     if not args.realtime:
                         ava_predictor_worker.compute_prediction()

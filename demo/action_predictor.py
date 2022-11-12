@@ -387,7 +387,13 @@ class AVAPredictorWorker(object):
             self.extra_stack.append((cur_millis, boxes, scores, ids))
             self.frame_stack = self.frame_stack[-self.frame_buffer_numbers:]
             self.extra_stack = self.extra_stack[-self.frame_buffer_numbers:]
+            
 
+            # print("=========================")
+            # print(-self.frame_buffer_numbers)
+            # print("-----------------")
+            # print(self.center_index)
+            # print("=========================")
             # Predict action once per interval
             if len(self.frame_stack) >= self.frame_buffer_numbers:
 
@@ -440,6 +446,15 @@ class AVAPredictorWorker(object):
                     pred_num_cnt += 1
                 else:
                     # if not realtime, timestamps will be saved and the predictions will be computed later.
+                    # if center_timestamp is None or video_size is None or person_ids[:, 0] is None:
+                    #     print("=========================")
+                    #     print(center_timestamp)
+                    #     print("-----------------")
+                    #     print(video_size)
+                    #     print("-----------------")
+                    #     print(person_ids)
+                    #     print("=========================")
+                    # print(type(person_ids))
                     self.timestamps.append((center_timestamp, video_size, person_ids[:, 0]))
                     ready_num = self.ava_predictor.check_ready_timestamp()
                     for timestamp_idx in range(pred_num_cnt, pred_num_cnt + ready_num):

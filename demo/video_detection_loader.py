@@ -14,6 +14,8 @@ from torchvision.transforms import functional as F
 
 from detector.apis import get_detector
 
+import json 
+
 class Resize(object):
     def __init__(self, min_size, max_size):
         self.min_size = min_size
@@ -201,7 +203,18 @@ class VideoDetectionLoader(object):
                 with torch.no_grad():
                     # Record original image resolution
                     im_dim_list_k = torch.FloatTensor(im_dim_list_k).repeat(1, 2)
+
+                json_file_path = '/home/artery/Desktop/Test/json/2-2.json'
+                with open(json_file_path,'r', encoding='UTF-8') as f:
+                    load_dict = json.load(f)
                 img_det = self.image_detection((img_k, orig_img, im_name, im_dim_list_k))
+                (orig_img, boxes, scores, ids) = img_det
+                # print(type(boxes))
+                # print(load_dict)
+                if load_dict[str(int(stream.get(cv2.CAP_PROP_POS_FRAMES))-1)] is not None:
+                    boxes_ = np.array(load_dict[str(int(stream.get(cv2.CAP_PROP_POS_FRAMES))-1)])
+                    boxes_ = torch.from_numpy(boxes_)
+                    img_det = (orig_img, boxes_, scores, np.array([[i+1] for i in range(len(boxes_))]))
                 self.image_postprocess(img_det, (frame, cur_millis))
 
     def image_detection(self, inputs):
@@ -223,7 +236,6 @@ class VideoDetectionLoader(object):
         boxes_k = boxes[dets[:, 0] == 0]
         if isinstance(boxes_k, int) or boxes_k.shape[0] == 0:
             return (orig_img, None, None, None)
-
         return (orig_img, boxes_k, scores[dets[:, 0] == 0], ids[dets[:, 0] == 0])
 
     def image_postprocess(self, inputs, extra):
@@ -242,6 +254,9 @@ class VideoDetectionLoader(object):
 
             # Only return the tracking results to main thread
             self.wait_and_put(self.track_queue, (orig_img, boxes, scores, ids))
+            # print("=============================================")
+            # print(self.track_queue.qsize())
+            # print("=============================================")
 
     def read_track(self):
         return self.wait_and_get(self.track_queue)
