@@ -204,7 +204,7 @@ class VideoDetectionLoader(object):
                     # Record original image resolution
                     im_dim_list_k = torch.FloatTensor(im_dim_list_k).repeat(1, 2)
 
-                json_file_path = '/home/artery/Desktop/Test/json/2-2.json'
+                json_file_path = './json/temp.json'
                 with open(json_file_path,'r', encoding='UTF-8') as f:
                     load_dict = json.load(f)
                 img_det = self.image_detection((img_k, orig_img, im_name, im_dim_list_k))
